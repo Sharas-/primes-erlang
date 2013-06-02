@@ -6,7 +6,6 @@
 
 -compile({nowarn_unused_function, [{collect_results, 2}, {anounce_if_prime, 2}]}).
 
--spec find(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> ok.
 %%----------------------------------------------------------------------
 %% Purpose:	Finds all primes in specified range.
 %% Args:	From - range start (inclusive) 
@@ -14,6 +13,7 @@
 %%			Callback - function to call when prime is found
 %% Returns:	ok.
 %%----------------------------------------------------------------------
+-spec find(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
 find(From, To, Callback) ->
 		OddFrom = case From < 3 of % Handling case when need to skip 1 as non prime and anounce 2 as prime
 				 true ->
@@ -23,23 +23,13 @@ find(From, To, Callback) ->
 				 	number_utils:make_odd(From)
 				end,
 	% --- sequential ---
-	iterate_odd_numbers(OddFrom, To, fun(Number) -> anounce_if_prime(Number, Callback) end).
+	number_utils:iterate_odd_numbers(OddFrom, To, fun(Number) -> anounce_if_prime(Number, Callback) end).
 	% --- parallel ---
-	% NrCnt = iterate_odd_numbers(OddFrom, To, fun(Number) -> prime_tester:start_link(self(), Number) end),
+	% NrCnt = number_utils:iterate_odd_numbers(OddFrom, To, fun(Number) -> prime_tester:start_link(self(), Number) end),
 	% collect_results(Callback, NrCnt).
 
 %-------------- private functions --------------------------------
 
--spec iterate_odd_numbers(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> pos_integer().
-iterate_odd_numbers(From, To, Callback) ->
-	iterate_odd_numbers_impl(number_utils:make_odd(From), To, Callback, 0).
-
--spec iterate_odd_numbers_impl(pos_integer(), pos_integer(), fun((pos_integer())-> any()), pos_integer()) -> pos_integer().
-iterate_odd_numbers_impl(From, To, _, Cnt) when From > To ->
-	Cnt;
-iterate_odd_numbers_impl(From, To, Callback, Cnt) ->
-	Callback(From),
-	iterate_odd_numbers_impl(From + 2, To, Callback, Cnt + 1).
 
 -spec anounce_if_prime(pos_integer(), fun((pos_integer()) -> any())) -> {true, any()} | false.
 anounce_if_prime(Number, Callback) ->
