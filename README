@@ -1,3 +1,2 @@
 Task: Find prime numbers in a given range.
-Parallel and sequential implementation.
-
+Parallel and sequential implementation with O(1) memory consumption.
