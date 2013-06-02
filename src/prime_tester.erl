@@ -1,5 +1,5 @@
 %%%--------------------------------------------------------------------- 
-%%% Implementation of a prime tester worker process
+%%% @doc Implementation of a prime tester worker process
 %%%--------------------------------------------------------------------- 
 -module(prime_tester).
 -export([start_link/2]).
