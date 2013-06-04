@@ -8,7 +8,7 @@ nr_9100000000000876432000000000000000234_test() ->
 	invoke_and_print_time(number_utils, is_prime, [9100000000000876432000000000000000234]).
 
 find_primes_1_to_1000000_test() ->
-	invoke_and_print_time(primes, find, [1, 1000000, fun(_) -> ok end]).
+	invoke_and_print_time(primes, find_primes, [1, 1000000, fun(_) -> ok end]).
 
 invoke_and_print_time(M, F, Args) ->
 	{Elapsed, _} = timer:tc(M, F, Args),

@@ -106,7 +106,7 @@ primes_999_to_10000_test() ->
 
 callabck_count_for_1_to_11_is_5_test() ->
 	erlang:put(callback_cnt, 0),
-	primes:find(1, 11, 
+	primes:find_primes(1, 11, 
 		fun(_) ->
 			Cnt = erlang:get(callback_cnt),
 		 	erlang:put(callback_cnt, Cnt + 1)
@@ -115,7 +115,7 @@ callabck_count_for_1_to_11_is_5_test() ->
 
 extract_primes_from_range(From, To) ->
 	erlang:put(primes, []),
-	primes:find(From, To, fun ?MODULE:store_prime/1),
+	primes:find_primes(From, To, fun ?MODULE:store_prime/1),
 	lists:sort(erlang:get(primes)).
 
 store_prime(Prime) ->
