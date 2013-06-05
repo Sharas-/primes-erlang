@@ -20,5 +20,8 @@ start_link(Pid, NumberToTest) ->
 
 -spec test_and_respond(pid(), pos_integer()) -> {prime, pos_integer()} | {not_prime, pos_integer()}.
 test_and_respond(Pid, NumberToTest) ->
-	TestResult = number_utils:is_prime(NumberToTest),
+	TestResult = case number_utils:is_prime(NumberToTest) of
+					true -> prime;
+					false -> not_prime
+				end,
 	Pid ! {TestResult, NumberToTest}.

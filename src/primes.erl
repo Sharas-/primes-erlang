@@ -4,7 +4,7 @@
 -module(primes).
 -export([find_primes/3, generate_primes/3]).
 
--compile({nowarn_unused_function, [{collect_results, 2}, {anounce_if_prime, 2}]}).
+-compile({nowarn_unused_function, [{collect_results, 2}]}).
 
 %%----------------------------------------------------------------------
 %% Purpose:	Finds all primes in specified range.
@@ -14,21 +14,19 @@
 %% Returns:	ok.
 %%----------------------------------------------------------------------
 -spec find_primes(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
+find_primes(From, To, _) when From > To ->
+	ok;
+find_primes(From, To, Callback) when From < 3, To > 1 -> % case when range includes 2
+	Callback(2), % anonce 2 as prime
+	find_primes(3, To, Callback); % skip 1 by starting from 3
 find_primes(From, To, Callback) ->
-		OddFrom = case From < 3 of % Handling case when need to skip 1 as non prime and anounce 2 as prime
-				 true ->
-				 	Callback(2),
-				 	3;
-				 false ->
-				 	number_utils:make_odd(From)
-				end,
+ 	OddFrom = number_utils:make_odd(From),
 	% --- sequential ---
-	number_utils:iterate_odd_numbers(OddFrom, To, fun(Number) -> anounce_if_prime(Number, Callback) end),
-	ok.
-	% --- parallel ---
-	% NrCnt = number_utils:iterate_odd_numbers(OddFrom, To, fun(Number) -> prime_tester:start_link(self(), Number) end),
-	% collect_results(Callback, NrCnt),
-	% ok.
+	lazy:map(lazy:filter(lazy:range(OddFrom, To, 2), fun number_utils:is_prime/1), Callback).
+	% --- parallel (naive) spanw prime tester for each odd number ---
+	% lazy:map(lazy:range(OddFrom, To, 2), fun(Number) -> prime_tester:start_link(self(), Number) end),
+	% WorkersCnt = trunc((To - OddFrom) / 2) + 1,
+	% collect_results(Callback, WorkersCnt).
 
 %%----------------------------------------------------------------------
 %% Purpose:	Searches for specified number of primes.
@@ -36,27 +34,12 @@ find_primes(From, To, Callback) ->
 %% 			HowMany - how many primes to find.
 %% 			Callback - function to call when prime is found.
 %% Returns:	ok.
-%%----------------------------------------------------------------------
+%----------------------------------------------------------------------
 -spec generate_primes(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
-generate_primes(From, HowMany, Callback) when HowMany > 0 ->
-	generate_primes_impl(number_utils:prime_iterator(From), HowMany, Callback).
+generate_primes(_From, _HowMany, _Callback) when _HowMany > 0 ->
+	ok.
 
 %-------------- private functions --------------------------------
-
--spec generate_primes_impl(fun(()-> {pos_integer, fun()}), pos_integer(), fun((pos_integer()) -> any())) -> any().
-generate_primes_impl(_, 0, _) ->
-	ok;
-generate_primes_impl(PrimeIterator, HowMany, Callback) ->
-	{NextPrime, PrimeIterator_} = PrimeIterator(),
-	Callback(NextPrime),
-	generate_primes_impl(PrimeIterator_, HowMany - 1, Callback).
-
--spec anounce_if_prime(pos_integer(), fun((pos_integer()) -> any())) -> {true, any()} | false.
-anounce_if_prime(Number, Callback) ->
-	case number_utils:is_prime(Number) of
-		prime -> {true, Callback(Number)};
-		not_prime -> false
-	end.
 
 -spec collect_results(fun((pos_integer()) -> any()), pos_integer()) -> done.
 collect_results(_, 0) ->

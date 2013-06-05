@@ -3,6 +3,9 @@
 -compile(export_all).
 
 
+primes_1_to_1_test() ->
+	?assertEqual([], extract_primes_from_range(1, 1)).
+
 primes_1_to_2_test() ->
 	?assertEqual([2], extract_primes_from_range(1, 2)).
 

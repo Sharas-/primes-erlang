@@ -2,16 +2,16 @@
 -include_lib("eunit/include/eunit.hrl").
 
 nr_1_is_not_prime_test() ->
-	?assertEqual(not_prime, number_utils:is_prime(1)).
+	?assertEqual(false, number_utils:is_prime(1)).
 
 nr_2_is_prime_test() ->
-	?assertEqual(prime, number_utils:is_prime(2)).
+	?assertEqual(true, number_utils:is_prime(2)).
 
 nr_198313_is_prime_test()->
-	?assertEqual(prime, number_utils:is_prime(198313)).
+	?assertEqual(true, number_utils:is_prime(198313)).
 
 nr_10000000_is_not_prime_test() ->
-	?assertEqual(not_prime, number_utils:is_prime(10000000)).
+	?assertEqual(false, number_utils:is_prime(10000000)).
 
 nr_999_has_odd_divisor_test() ->
 	?assertEqual(true, number_utils:has_odd_divisor(999)).
