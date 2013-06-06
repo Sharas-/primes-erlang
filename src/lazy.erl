@@ -4,7 +4,7 @@
 %%%--------------------------------------------------------------------- 
 
 -module(lazy).
--export([range/2, range/3, infinite_range/2, filter/2, map/2, list/1]).
+-export([range/2, range/3, infinite_range/2, filter/2, map/2, list/1, take/2]).
 
 -type iterator(TValue):: {TValue, fun(() -> iterator(TValue))} | done.
 %%----------------------------------------------------------------------
@@ -33,11 +33,26 @@ range(From, To, Step) ->
 -spec infinite_range(number(), number()) -> iterator(number()).
 infinite_range(From, Step) ->
  	{From, fun() -> infinite_range(From + Step, Step) end}.
+
+%%----------------------------------------------------------------------
+%% Purpose:	Puts a bound on how many times iterator can be advanced
+%% Args:	stream iterator
+%% 			Cnt - maximum number of times iterator can be advanced
+%% Returns:	Bounded strem iterator
+%%----------------------------------------------------------------------
+-spec take(iterator(any()), pos_integer()) -> iterator(any()).
+take(done, _) ->
+	done;
+take(_, 0) ->
+	done;
+take({Val, Iterator}, Cnt) ->
+	{Val, fun() -> take(Iterator(), Cnt - 1) end}.
+
 %%----------------------------------------------------------------------
 %% Purpose:	Creates lazy stream of items satisfying predicate
 %% Args:	Stream iterator
 %% 			Predicate - Filter function
-%% Returns:	Stream iterator
+%% Returns:	Filtered stream iterator
 %%----------------------------------------------------------------------
 -spec filter(iterator(any()), fun((any()) -> boolean())) -> iterator(any()).
 filter(done, _) ->
@@ -47,6 +62,7 @@ filter({Value, Iterator}, Predicate) ->
 		true -> {Value, fun()-> filter(Iterator(), Predicate) end};
 		false -> filter(Iterator(), Predicate)
 	end.
+
 %%----------------------------------------------------------------------
 %% Purpose:	Iterates lazy stream and applies supplied function to its values
 %% Args:	Stream iterator

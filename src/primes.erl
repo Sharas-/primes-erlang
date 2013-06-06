@@ -2,7 +2,7 @@
 %%% @doc Facade for prime enumaration algorithm. 
 %%%--------------------------------------------------------------------- 
 -module(primes).
--export([find_primes/3, generate_primes/3]).
+-export([find/3, generate/3]).
 
 -compile({nowarn_unused_function, [{collect_results, 2}]}).
 
@@ -13,13 +13,13 @@
 %%			Callback - function to call when prime is found
 %% Returns:	ok.
 %%----------------------------------------------------------------------
--spec find_primes(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
-find_primes(From, To, _) when From > To ->
+-spec find(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
+find(From, To, _) when From > To ->
 	ok;
-find_primes(From, To, Callback) when From < 3, To > 1 -> % case when range includes 2
+find(From, To, Callback) when From < 3, To > 1 -> % case when range includes 2
 	Callback(2), % anonce 2 as prime
-	find_primes(3, To, Callback); % skip 1 by starting from 3
-find_primes(From, To, Callback) ->
+	find(3, To, Callback); % skip 1 by starting from 3
+find(From, To, Callback) ->
  	OddFrom = number_utils:make_odd(From),
 	% --- sequential ---
 	lazy:map(lazy:filter(lazy:range(OddFrom, To, 2), fun number_utils:is_prime/1), Callback).
@@ -35,9 +35,16 @@ find_primes(From, To, Callback) ->
 %% 			Callback - function to call when prime is found.
 %% Returns:	ok.
 %----------------------------------------------------------------------
--spec generate_primes(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
-generate_primes(_From, _HowMany, _Callback) when _HowMany > 0 ->
-	ok.
+-spec generate(pos_integer(), pos_integer(), fun((pos_integer()) -> any())) -> any().
+generate(From, HowMany, Callback) when From < 3 ->
+	Callback(2),
+	generate(3, HowMany - 1, Callback);
+generate(From, HowMany, Callback) when HowMany > 0 ->
+	OddFrom = number_utils:make_odd(From),
+	OddNrStream = lazy:infinite_range(OddFrom, 2),
+	PrimesStream = lazy:filter(OddNrStream, fun number_utils:is_prime/1),
+	BoundedStream = lazy:take(PrimesStream, HowMany),
+	lazy:map(BoundedStream, Callback).
 
 %-------------- private functions --------------------------------
 

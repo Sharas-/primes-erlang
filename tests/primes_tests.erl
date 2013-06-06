@@ -4,22 +4,26 @@
 
 
 primes_1_to_1_test() ->
-	?assertEqual([], extract_primes_from_range(1, 1)).
+	?assertEqual([], get_primes(1, 1)).
 
 primes_1_to_2_test() ->
-	?assertEqual([2], extract_primes_from_range(1, 2)).
+	?assertEqual([2], get_primes(1, 2)).
 
 primes_2_to_2_test() ->
-	?assertEqual([2], extract_primes_from_range(2, 2)).
+	?assertEqual([2], get_primes(2, 2)).
 
 primes_4_to_15_test() ->
-	?assertEqual([5,7,11,13], extract_primes_from_range(4, 15)).
+	?assertEqual([5,7,11,13], get_primes(4, 15)).
 
 primes_10_to_1_test() ->
-	?assertEqual([], extract_primes_from_range(10, 1)).
+	?assertEqual([], get_primes(10, 1)).
 
 primes_1_to_29_test() ->
-	?assertEqual([2,3,5,7,11,13,17,19,23,29], extract_primes_from_range(1, 29)).
+	?assertEqual([2,3,5,7,11,13,17,19,23,29], get_primes(1, 29)).
+
+primes_1_to_29_generate_test() ->
+	?assertEqual([2,3,5,7,11,13,17,19,23,29], get_primes(generate, 1, 10)).
+
 
 primes_999_to_10000_test() ->
 	?assertEqual(
@@ -105,20 +109,24 @@ primes_999_to_10000_test() ->
 	9631, 9643, 9649, 9661, 9677, 9679, 9689, 9697, 9719, 9721, 9733, 9739, 9743,
 	9749, 9767, 9769, 9781, 9787, 9791, 9803, 9811, 9817, 9829, 9833, 9839, 9851,
 	9857, 9859, 9871, 9883, 9887, 9901, 9907, 9923, 9929, 9931, 9941, 9949, 9967,
-	9973], extract_primes_from_range(999, 10000)).
+	9973], get_primes(999, 10000)).
 
 callabck_count_for_1_to_11_is_5_test() ->
 	erlang:put(callback_cnt, 0),
-	primes:find_primes(1, 11, 
+	primes:find(1, 11, 
 		fun(_) ->
 			Cnt = erlang:get(callback_cnt),
 		 	erlang:put(callback_cnt, Cnt + 1)
 		end),
 	?assertEqual(5, erlang:get(callback_cnt)).
 
-extract_primes_from_range(From, To) ->
+
+get_primes(From, To) ->
+	get_primes(find, From, To).
+
+get_primes(FunName, From, To) ->
 	erlang:put(primes, []),
-	primes:find_primes(From, To, fun ?MODULE:store_prime/1),
+	primes:FunName(From, To, fun ?MODULE:store_prime/1),
 	lists:sort(erlang:get(primes)).
 
 store_prime(Prime) ->

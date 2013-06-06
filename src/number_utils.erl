@@ -15,10 +15,8 @@ is_prime(1) ->
 	false;
 is_prime(2) -> 
 	true;
-is_prime(NumberToTest) when NumberToTest band 1 == 0 ->
-	false;
 is_prime(NumberToTest) ->
-	not has_odd_divisor(NumberToTest).
+	not is_composite(NumberToTest).
 
 %%----------------------------------------------------------------------
 %% Purpose:	Makes number odd by adding one to it. If it is already odd just returns it.
@@ -30,6 +28,13 @@ make_odd(Number) ->
 	Number bor 1.
 
 %--------------- private functions ---------------------------------
+
+-spec is_composite(integer()) -> boolean().
+is_composite(Number) when Number band 1 == 0 ->
+	true;
+is_composite(Number) ->
+	has_odd_divisor(Number).
+
 
 -spec has_odd_divisor(pos_integer()) -> boolean().
 has_odd_divisor(Number) ->
